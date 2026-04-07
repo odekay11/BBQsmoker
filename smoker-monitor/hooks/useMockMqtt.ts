@@ -15,7 +15,13 @@ interface SmokerState {
   ssrStatus: boolean
   connected: boolean
   history: HistoryEntry[]
+  isRunning: boolean
+  elapsedSeconds: number
+  cookTimerMinutes: number | null
   setTargetTemp: (temp: number) => void
+  startSmoker: () => void
+  stopSmoker: () => void
+  setCookTimer: (minutes: number | null) => void
 }
 
 export function useMockMqtt(): SmokerState {
@@ -24,13 +30,19 @@ export function useMockMqtt(): SmokerState {
   const [targetTemp, setTargetTempState] = useState<number>(225)
   const [ssrStatus, setSsrStatus] = useState<boolean>(true)
   const [history, setHistory] = useState<HistoryEntry[]>([])
+  const [isRunning, setIsRunning] = useState(false)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [cookTimerMinutes, setCookTimerMinutesState] = useState<number | null>(null)
 
   const chamberRef = useRef(70)
   const meatRef = useRef(40)
   const targetRef = useRef(225)
+  const isRunningRef = useRef(false)
+  const startTimeRef = useRef<number | null>(null)
+  const cookTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
-    const interval = setInterval(() => {
+    const dataInterval = setInterval(() => {
       const target = targetRef.current
 
       // Chamber rises toward target at ~2°F per reading
@@ -57,12 +69,47 @@ export function useMockMqtt(): SmokerState {
       })
     }, 2000)
 
-    return () => clearInterval(interval)
+    // Stopwatch interval — uses refs to avoid stale closures
+    const ticker = setInterval(() => {
+      if (!isRunningRef.current || startTimeRef.current === null) return
+      const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
+      setElapsedSeconds(elapsed)
+
+      if (cookTimerRef.current !== null && elapsed >= cookTimerRef.current * 60) {
+        isRunningRef.current = false
+        startTimeRef.current = null
+        setIsRunning(false)
+      }
+    }, 1000)
+
+    return () => {
+      clearInterval(dataInterval)
+      clearInterval(ticker)
+    }
   }, [])
 
   const setTargetTemp = (temp: number) => {
     targetRef.current = temp
     setTargetTempState(temp)
+  }
+
+  const startSmoker = () => {
+    startTimeRef.current = Date.now()
+    isRunningRef.current = true
+    setIsRunning(true)
+    setElapsedSeconds(0)
+  }
+
+  const stopSmoker = () => {
+    isRunningRef.current = false
+    startTimeRef.current = null
+    setIsRunning(false)
+    setElapsedSeconds(0)
+  }
+
+  const setCookTimer = (minutes: number | null) => {
+    cookTimerRef.current = minutes
+    setCookTimerMinutesState(minutes)
   }
 
   return {
@@ -72,6 +119,12 @@ export function useMockMqtt(): SmokerState {
     ssrStatus,
     connected: true,
     history,
+    isRunning,
+    elapsedSeconds,
+    cookTimerMinutes,
     setTargetTemp,
+    startSmoker,
+    stopSmoker,
+    setCookTimer,
   }
 }

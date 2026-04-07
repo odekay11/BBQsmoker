@@ -17,7 +17,13 @@ interface SmokerState {
   ssrStatus: boolean
   connected: boolean
   history: HistoryEntry[]
+  isRunning: boolean
+  elapsedSeconds: number
+  cookTimerMinutes: number | null
   setTargetTemp: (temp: number) => void
+  startSmoker: () => void
+  stopSmoker: () => void
+  setCookTimer: (minutes: number | null) => void
 }
 
 export function useMqtt(): SmokerState {
@@ -27,7 +33,14 @@ export function useMqtt(): SmokerState {
   const [ssrStatus, setSsrStatus] = useState<boolean>(false)
   const [connected, setConnected] = useState<boolean>(false)
   const [history, setHistory] = useState<HistoryEntry[]>([])
+  const [isRunning, setIsRunning] = useState(false)
+  const [elapsedSeconds, setElapsedSeconds] = useState(0)
+  const [cookTimerMinutes, setCookTimerMinutesState] = useState<number | null>(null)
+
   const clientRef = useRef<mqtt.MqttClient | null>(null)
+  const isRunningRef = useRef(false)
+  const startTimeRef = useRef<number | null>(null)
+  const cookTimerRef = useRef<number | null>(null)
 
   useEffect(() => {
     const client = mqtt.connect(mqttConfig.url, mqttConfig.options)
@@ -81,8 +94,25 @@ export function useMqtt(): SmokerState {
       }
     })
 
+    // Stopwatch interval — uses refs to avoid stale closures
+    const ticker = setInterval(() => {
+      if (!isRunningRef.current || startTimeRef.current === null) return
+      const elapsed = Math.floor((Date.now() - startTimeRef.current) / 1000)
+      setElapsedSeconds(elapsed)
+
+      if (cookTimerRef.current !== null && elapsed >= cookTimerRef.current * 60) {
+        isRunningRef.current = false
+        startTimeRef.current = null
+        setIsRunning(false)
+        if (client.connected) {
+          client.publish(mqttConfig.topics.power, 'off')
+        }
+      }
+    }, 1000)
+
     return () => {
       client.end()
+      clearInterval(ticker)
     }
   }, [])
 
@@ -93,5 +123,34 @@ export function useMqtt(): SmokerState {
     }
   }
 
-  return { chamberTemp, meatTemp, targetTemp, ssrStatus, connected, history, setTargetTemp }
+  const startSmoker = () => {
+    startTimeRef.current = Date.now()
+    isRunningRef.current = true
+    setIsRunning(true)
+    setElapsedSeconds(0)
+    if (clientRef.current?.connected) {
+      clientRef.current.publish(mqttConfig.topics.power, 'on')
+    }
+  }
+
+  const stopSmoker = () => {
+    isRunningRef.current = false
+    startTimeRef.current = null
+    setIsRunning(false)
+    setElapsedSeconds(0)
+    if (clientRef.current?.connected) {
+      clientRef.current.publish(mqttConfig.topics.power, 'off')
+    }
+  }
+
+  const setCookTimer = (minutes: number | null) => {
+    cookTimerRef.current = minutes
+    setCookTimerMinutesState(minutes)
+  }
+
+  return {
+    chamberTemp, meatTemp, targetTemp, ssrStatus, connected, history,
+    isRunning, elapsedSeconds, cookTimerMinutes,
+    setTargetTemp, startSmoker, stopSmoker, setCookTimer,
+  }
 }

@@ -6,18 +6,23 @@ import TemperatureGauge from '@/components/TemperatureGauge'
 import TemperatureChart from '@/components/TemperatureChart'
 import TargetControl from '@/components/TargetControl'
 import SSRStatus from '@/components/SSRStatus'
+import SmokerControls from '@/components/SmokerControls'
 
 const useSmokerData = process.env.NEXT_PUBLIC_MOCK_MODE === 'true' ? useMockMqtt : useMqtt
 
 export default function Home() {
-  const { chamberTemp, meatTemp, targetTemp, ssrStatus, connected, history, setTargetTemp } = useSmokerData()
+  const {
+    chamberTemp, meatTemp, targetTemp, ssrStatus, connected, history,
+    isRunning, elapsedSeconds, cookTimerMinutes,
+    setTargetTemp, startSmoker, stopSmoker, setCookTimer,
+  } = useSmokerData()
 
   return (
     <main className="min-h-screen bg-gray-950 text-white">
       <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Smoker Monitor</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Trashcan Smoker!</h1>
           <div className="flex items-center gap-2">
             <span
               className={`w-3 h-3 rounded-full ${connected ? 'bg-green-400' : 'bg-red-500'}`}
@@ -34,6 +39,16 @@ export default function Home() {
 
         {/* SSR status */}
         <SSRStatus ssrStatus={ssrStatus} />
+
+        {/* Start/Stop, stopwatch, cook timer */}
+        <SmokerControls
+          isRunning={isRunning}
+          elapsedSeconds={elapsedSeconds}
+          cookTimerMinutes={cookTimerMinutes}
+          onStart={startSmoker}
+          onStop={stopSmoker}
+          onSetCookTimer={setCookTimer}
+        />
 
         {/* Target control */}
         <TargetControl targetTemp={targetTemp} onSetTarget={setTargetTemp} />

@@ -24,6 +24,16 @@ static void mqttCallback(char* topic, byte* payload, unsigned int length) {
             Serial.println(" °F");
         }
     }
+
+    if (strcmp(topic, TOPIC_POWER) == 0) {
+        if (strcmp(msg, "on") == 0) {
+            smokerEnabled = true;
+            Serial.println("[MQTT] Smoker ENABLED");
+        } else if (strcmp(msg, "off") == 0) {
+            smokerEnabled = false;
+            Serial.println("[MQTT] Smoker DISABLED");
+        }
+    }
 }
 
 void initMQTT() {
@@ -42,8 +52,11 @@ void reconnect() {
         if (mqttClient.connect(MQTT_CLIENT_ID, MQTT_USER, MQTT_PASSWORD)) {
             Serial.println(" connected.");
             mqttClient.subscribe(TOPIC_TARGET);
+            mqttClient.subscribe(TOPIC_POWER);
             Serial.print("[MQTT] Subscribed to ");
-            Serial.println(TOPIC_TARGET);
+            Serial.print(TOPIC_TARGET);
+            Serial.print(", ");
+            Serial.println(TOPIC_POWER);
         } else {
             Serial.print(" failed, rc=");
             Serial.print(mqttClient.state());

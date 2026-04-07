@@ -26,6 +26,13 @@ void initPID() {
 }
 
 void computePID(double currentTemp) {
+    // If the smoker has been stopped via MQTT, cut power and do nothing.
+    if (!smokerEnabled) {
+        digitalWrite(SSR_PIN, LOW);
+        ssrOn = false;
+        return;
+    }
+
     pidInput    = currentTemp;
     pidSetpoint = targetTemp; // Read global from config.h
 

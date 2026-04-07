@@ -5,10 +5,10 @@ const char* WIFI_SSID     = "";
 const char* WIFI_PASSWORD = "";
 
 // HiveMQ
-const char* MQTT_HOST      = "";   // e.g. abc123.s1.eu.hivemq.cloud
+const char* MQTT_HOST      = "c3d71cf3320e46e4b3d517dd60f64fb4.s1.eu.hivemq.cloud";   // e.g. abc123.s1.eu.hivemq.cloud
 const int   MQTT_PORT      = 8883; // TLS port (not 8884 which is WebSocket)
-const char* MQTT_USER      = "";
-const char* MQTT_PASSWORD  = "";
+const char* MQTT_USER      = "smokerV1";
+const char* MQTT_PASSWORD  = "SCUsmoker12!";
 const char* MQTT_CLIENT_ID = "ESP32Smoker";
 
 // MQTT topics
@@ -16,6 +16,7 @@ const char* TOPIC_CHAMBER = "smoker/chamber/temperature";
 const char* TOPIC_MEAT    = "smoker/meat/temperature";
 const char* TOPIC_TARGET  = "smoker/target/temperature";
 const char* TOPIC_SSR     = "smoker/ssr/status";
+const char* TOPIC_POWER   = "smoker/power";
 
 // Pin assignments
 const int SSR_PIN    = 26;
@@ -34,3 +35,7 @@ const int WINDOW_SIZE = 10000;
 
 // Default target temperature (Fahrenheit)
 double targetTemp = 225.0;
+
+// Controls whether the PID/SSR are active.
+// Set to true by MQTT "on" message, false by "off" message.
+bool smokerEnabled = false;
