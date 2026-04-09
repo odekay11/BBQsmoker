@@ -5,7 +5,7 @@
 #include <ArduinoJson.h>
 
 static WiFiClientSecure espClient;
-static PubSubClient     mqttClient(espClient);
+PubSubClient            mqttClient(espClient);
 
 // Called by PubSubClient when a message arrives on a subscribed topic
 static void mqttCallback(char* topic, byte* payload, unsigned int length) {

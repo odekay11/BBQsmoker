@@ -4,8 +4,8 @@
 
 // Both thermocouples share the hardware SPI bus.
 // Only the chip-select (CS) pin differs between the two.
-static Adafruit_MAX31855 tc1(TC1_CS_PIN); // Chamber
-static Adafruit_MAX31855 tc2(TC2_CS_PIN); // Meat
+Adafruit_MAX31855 tc1(TC1_CS_PIN); // Chamber
+Adafruit_MAX31855 tc2(TC2_CS_PIN); // Meat
 
 void initThermocouples() {
     tc1.begin();
