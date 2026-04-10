@@ -1,22 +1,22 @@
 #pragma once
 
 // WiFi
-const char* WIFI_SSID     = "";
-const char* WIFI_PASSWORD = "";
+static const char* WIFI_SSID     = "";
+static const char* WIFI_PASSWORD = "";
 
 // HiveMQ
-const char* MQTT_HOST      = "c3d71cf3320e46e4b3d517dd60f64fb4.s1.eu.hivemq.cloud";   // e.g. abc123.s1.eu.hivemq.cloud
-const int   MQTT_PORT      = 8883; // TLS port (not 8884 which is WebSocket)
-const char* MQTT_USER      = "smokerV1";
-const char* MQTT_PASSWORD  = "SCUsmoker12!";
-const char* MQTT_CLIENT_ID = "ESP32Smoker";
+static const char* MQTT_HOST      = "c3d71cf3320e46e4b3d517dd60f64fb4.s1.eu.hivemq.cloud";   // e.g. abc123.s1.eu.hivemq.cloud
+const int          MQTT_PORT      = 8883; // TLS port (not 8884 which is WebSocket)
+static const char* MQTT_USER      = "smokerV1";
+static const char* MQTT_PASSWORD  = "SCUsmoker12!";
+static const char* MQTT_CLIENT_ID = "ESP32Smoker";
 
 // MQTT topics
-const char* TOPIC_CHAMBER = "smoker/chamber/temperature";
-const char* TOPIC_MEAT    = "smoker/meat/temperature";
-const char* TOPIC_TARGET  = "smoker/target/temperature";
-const char* TOPIC_SSR     = "smoker/ssr/status";
-const char* TOPIC_POWER   = "smoker/power";
+static const char* TOPIC_CHAMBER = "smoker/chamber/temperature";
+static const char* TOPIC_MEAT    = "smoker/meat/temperature";
+static const char* TOPIC_TARGET  = "smoker/target/temperature";
+static const char* TOPIC_SSR     = "smoker/ssr/status";
+static const char* TOPIC_POWER   = "smoker/power";
 
 // Pin assignments
 const int SSR_PIN    = 26;
@@ -33,9 +33,10 @@ const double PID_KD = 1.0;
 // We use a 10-second window: at 60% output, SSR is ON for 6s, OFF for 4s.
 const int WINDOW_SIZE = 10000;
 
-// Default target temperature (Fahrenheit)
-double targetTemp = 225.0;
+// Default target temperature (Fahrenheit) — defined in config.cpp
+extern double targetTemp;
 
 // Controls whether the PID/SSR are active.
 // Set to true by MQTT "on" message, false by "off" message.
-bool smokerEnabled = false;
+// Defined in config.cpp
+extern bool smokerEnabled;

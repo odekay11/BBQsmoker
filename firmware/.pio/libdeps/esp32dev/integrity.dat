@@ -1,0 +1,4 @@
+adafruit/Adafruit MAX31855 library
+knolleary/PubSubClient
+bblanchon/ArduinoJson@^6
+br3ttb/PID

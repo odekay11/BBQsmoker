@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cd C:/Projects/smoker/firmware && pio test -e native --verbose 2>&1)",
+      "Bash(cd C:/Projects/smoker/firmware && pio run -e esp32dev 2>&1)",
+      "WebSearch"
+    ]
+  }
+}
