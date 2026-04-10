@@ -2,6 +2,7 @@
 // Stub for Adafruit MAX31855 thermocouple library.
 // Tests set _fakeTemp / _returnNan to control readCelsius() output.
 
+#include "Arduino.h"
 #include <cstdint>
 #include <math.h>   // NAN
 
