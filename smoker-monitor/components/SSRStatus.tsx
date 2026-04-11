@@ -5,9 +5,9 @@ interface SSRStatusProps {
 export default function SSRStatus({ ssrStatus }: SSRStatusProps) {
   if (ssrStatus) {
     return (
-      <div className="flex items-center justify-center">
-        <span className="inline-flex items-center gap-2 bg-orange-500/20 text-orange-400 border border-orange-500/40 rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-wider">
-          <span className="w-2 h-2 bg-orange-400 rounded-full animate-pulse" />
+      <div className="flex justify-center">
+        <span className="inline-flex items-center gap-2 rounded-full border border-amber-400/35 bg-amber-500/15 px-5 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-amber-200 shadow-[0_0_24px_-4px_rgba(251,191,36,0.45)]">
+          <span className="h-2 w-2 animate-pulse rounded-full bg-amber-400 shadow-[0_0_10px_rgba(251,191,36,0.9)]" />
           Heating
         </span>
       </div>
@@ -15,9 +15,9 @@ export default function SSRStatus({ ssrStatus }: SSRStatusProps) {
   }
 
   return (
-    <div className="flex items-center justify-center">
-      <span className="inline-flex items-center gap-2 bg-gray-700/50 text-gray-400 border border-gray-600 rounded-full px-4 py-2 text-sm font-semibold uppercase tracking-wider">
-        <span className="w-2 h-2 bg-gray-500 rounded-full" />
+    <div className="flex justify-center">
+      <span className="inline-flex items-center gap-2 rounded-full border border-zinc-600/80 bg-zinc-800/40 px-5 py-2 text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">
+        <span className="h-2 w-2 rounded-full bg-zinc-600" />
         Idle
       </span>
     </div>

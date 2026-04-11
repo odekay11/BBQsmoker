@@ -18,23 +18,40 @@ export default function Home() {
   } = useSmokerData()
 
   return (
-    <main className="min-h-screen bg-gray-950 text-white">
-      <div className="max-w-lg mx-auto px-4 py-6 flex flex-col gap-4">
+    <main className="relative min-h-screen overflow-x-hidden text-zinc-100">
+      <div
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_120%_80%_at_50%_-20%,rgba(251,146,60,0.12),transparent_55%),radial-gradient(ellipse_80%_50%_at_100%_50%,rgba(56,189,248,0.06),transparent_45%),radial-gradient(ellipse_60%_40%_at_0%_80%,rgba(251,146,60,0.05),transparent_50%)]"
+        aria-hidden
+      />
+      <div className="relative mx-auto flex max-w-lg flex-col gap-5 px-4 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between">
-          <h1 className="text-2xl font-bold tracking-tight">Trashcan Smoker!</h1>
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-3">
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
+            Trashcan Smoker
+          </h1>
+          <div
+            className={`flex items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-medium ${
+              connected
+                ? 'border-emerald-500/25 bg-emerald-500/10 text-emerald-300'
+                : 'border-red-500/30 bg-red-500/10 text-red-300'
+            }`}
+          >
             <span
-              className={`w-3 h-3 rounded-full ${connected ? 'bg-green-400' : 'bg-red-500'}`}
+              className={`h-2 w-2 rounded-full ${connected ? 'bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.7)]' : 'bg-red-500'}`}
             />
-            <span className="text-sm text-gray-400">{connected ? 'Connected' : 'Disconnected'}</span>
+            {connected ? 'Connected' : 'Disconnected'}
           </div>
         </div>
 
         {/* Temperature gauges */}
         <div className="flex gap-3">
-          <TemperatureGauge label="Chamber" temp={chamberTemp} targetTemp={targetTemp} />
-          <TemperatureGauge label="Meat" temp={meatTemp} />
+          <TemperatureGauge
+            variant="chamber"
+            label="Chamber"
+            temp={chamberTemp}
+            targetTemp={targetTemp}
+          />
+          <TemperatureGauge variant="meat" label="Meat" temp={meatTemp} />
         </div>
 
         {/* SSR status */}

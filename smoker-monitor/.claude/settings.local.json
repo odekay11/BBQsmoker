@@ -5,7 +5,8 @@
       "Bash(cd:*)",
       "Bash(cd /c/projects/smoker/smoker-monitor && npm install mqtt recharts 2>&1)",
       "Bash(pip install:*)",
-      "Bash(cd /c/projects/smoker/firmware && pio test -e native 2>&1)"
+      "Bash(cd /c/projects/smoker/firmware && pio test -e native 2>&1)",
+      "Bash(tail:*)"
     ]
   }
 }

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import AppPanel from '@/components/AppPanel'
 
 interface TargetControlProps {
   targetTemp: number
@@ -24,13 +25,19 @@ export default function TargetControl({ targetTemp, onSetTarget }: TargetControl
   const handleSet = () => onSetTarget(inputValue)
 
   return (
-    <div className="bg-gray-800 rounded-2xl p-4">
-      <p className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-3">Target Temperature</p>
-      <p className="text-gray-300 text-sm mb-3">Current: <span className="text-white font-semibold">{targetTemp}°F</span></p>
-      <div className="flex items-center gap-3">
+    <AppPanel className="p-4">
+      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">
+        Target temperature
+      </p>
+      <p className="mb-4 text-sm text-zinc-400">
+        SET:{' '}
+        <span className="font-semibold tabular-nums text-zinc-100">{targetTemp}°F</span>
+      </p>
+      <div className="flex items-center gap-2 sm:gap-3">
         <button
+          type="button"
           onClick={handleDecrement}
-          className="w-12 h-12 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-2xl font-bold rounded-xl transition-colors"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-zinc-600/80 bg-zinc-800/80 text-2xl font-bold text-zinc-100 transition hover:bg-zinc-700/90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
           aria-label="Decrease by 5"
         >
           −
@@ -41,22 +48,24 @@ export default function TargetControl({ targetTemp, onSetTarget }: TargetControl
           onChange={handleChange}
           min={MIN_TEMP}
           max={MAX_TEMP}
-          className="w-24 h-12 bg-gray-700 text-white text-center text-xl font-semibold rounded-xl border border-gray-600 focus:outline-none focus:border-orange-400"
+          className="h-12 w-20 shrink-0 rounded-xl border border-zinc-600/80 bg-zinc-950/50 text-center text-xl font-semibold tabular-nums text-zinc-100 focus:border-amber-400/60 focus:outline-none focus:ring-2 focus:ring-amber-400/30 sm:w-24"
         />
         <button
+          type="button"
           onClick={handleIncrement}
-          className="w-12 h-12 bg-gray-700 hover:bg-gray-600 active:bg-gray-500 text-white text-2xl font-bold rounded-xl transition-colors"
+          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-zinc-600/80 bg-zinc-800/80 text-2xl font-bold text-zinc-100 transition hover:bg-zinc-700/90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
           aria-label="Increase by 5"
         >
           +
         </button>
         <button
+          type="button"
           onClick={handleSet}
-          className="flex-1 h-12 bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white font-semibold rounded-xl transition-colors"
+          className="h-12 min-w-0 flex-1 rounded-xl bg-gradient-to-b from-amber-500 to-amber-600 font-semibold text-amber-950 shadow-lg shadow-amber-900/30 transition hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
         >
           Set
         </button>
       </div>
-    </div>
+    </AppPanel>
   )
 }

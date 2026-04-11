@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import AppPanel from '@/components/AppPanel'
 
 interface SmokerControlsProps {
   isRunning: boolean
@@ -48,15 +49,16 @@ export default function SmokerControls({
   const timedOut = remaining === 0
 
   return (
-    <div className="bg-gray-800 rounded-2xl p-4 flex flex-col gap-4">
+    <AppPanel className="flex flex-col gap-5 p-4">
       {/* Start / Stop */}
-      <div className="flex flex-col items-center gap-3">
+      <div className="flex flex-col items-center gap-4">
         <button
+          type="button"
           onClick={isRunning ? onStop : onStart}
-          className={`w-full h-14 font-bold text-lg rounded-xl transition-colors ${
+          className={`h-14 w-full rounded-xl text-lg font-bold transition focus-visible:outline-none focus-visible:ring-2 active:scale-[0.99] ${
             isRunning
-              ? 'bg-red-500 hover:bg-red-400 active:bg-red-600 text-white'
-              : 'bg-green-600 hover:bg-green-500 active:bg-green-700 text-white'
+              ? 'bg-gradient-to-b from-red-500 to-red-600 text-white shadow-lg shadow-red-950/40 focus-visible:ring-red-400/50'
+              : 'bg-gradient-to-b from-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-950/35 focus-visible:ring-emerald-400/50'
           }`}
         >
           {isRunning ? '■  Stop' : '▶  Start'}
@@ -64,10 +66,12 @@ export default function SmokerControls({
 
         {/* Stopwatch */}
         <div className="text-center">
-          <p className="text-gray-400 text-xs uppercase tracking-wider mb-1">Running Time</p>
+          <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+            Running time
+          </p>
           <p
-            className={`text-3xl font-mono font-bold tabular-nums ${
-              isRunning ? 'text-green-400' : 'text-gray-600'
+            className={`font-mono text-3xl font-bold tabular-nums tracking-tight ${
+              isRunning ? 'text-emerald-400' : 'text-zinc-600'
             }`}
           >
             {formatTime(elapsedSeconds)}
@@ -75,19 +79,23 @@ export default function SmokerControls({
         </div>
       </div>
 
+      <div className="h-px bg-gradient-to-r from-transparent via-zinc-600/50 to-transparent" />
+
       {/* Cook Timer */}
       <div>
-        <p className="text-gray-400 text-sm font-medium uppercase tracking-wider mb-3">Cook Timer</p>
+        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">
+          Cook timer
+        </p>
 
         {/* Countdown display */}
         {cookTimerMinutes !== null && (
           <div className="mb-3 text-center">
-            <p className="text-xs text-gray-400 uppercase tracking-wider mb-1">
+            <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">
               {timedOut ? 'Time Up!' : 'Remaining'}
             </p>
             <p
-              className={`text-2xl font-mono font-bold tabular-nums ${
-                timedOut ? 'text-red-400' : 'text-orange-400'
+              className={`font-mono text-2xl font-bold tabular-nums ${
+                timedOut ? 'text-red-400' : 'text-amber-400'
               }`}
             >
               {formatTime(remaining!)}
@@ -96,21 +104,21 @@ export default function SmokerControls({
         )}
 
         {/* Timer inputs */}
-        <div className="flex items-end gap-2">
+        <div className="flex flex-wrap items-end gap-2">
           <div className="flex flex-col items-center">
-            <span className="text-xs text-gray-500 mb-1">Hrs</span>
+            <span className="mb-1 text-[0.65rem] text-zinc-500">Hrs</span>
             <input
               type="number"
               min={0}
               max={24}
               value={timerHours}
               onChange={e => setTimerHours(Math.max(0, parseInt(e.target.value) || 0))}
-              className="w-16 h-10 bg-gray-700 text-white text-center text-lg font-semibold rounded-xl border border-gray-600 focus:outline-none focus:border-orange-400"
+              className="h-10 w-14 rounded-xl border border-zinc-600/80 bg-zinc-950/50 text-center text-lg font-semibold tabular-nums text-zinc-100 focus:border-amber-400/60 focus:outline-none focus:ring-2 focus:ring-amber-400/25 sm:w-16"
             />
           </div>
-          <span className="text-gray-400 text-xl font-bold pb-2">:</span>
+          <span className="pb-2 text-xl font-bold text-zinc-500">:</span>
           <div className="flex flex-col items-center">
-            <span className="text-xs text-gray-500 mb-1">Min</span>
+            <span className="mb-1 text-[0.65rem] text-zinc-500">Min</span>
             <input
               type="number"
               min={0}
@@ -119,25 +127,27 @@ export default function SmokerControls({
               onChange={e =>
                 setTimerMinutes(Math.min(59, Math.max(0, parseInt(e.target.value) || 0)))
               }
-              className="w-16 h-10 bg-gray-700 text-white text-center text-lg font-semibold rounded-xl border border-gray-600 focus:outline-none focus:border-orange-400"
+              className="h-10 w-14 rounded-xl border border-zinc-600/80 bg-zinc-950/50 text-center text-lg font-semibold tabular-nums text-zinc-100 focus:border-amber-400/60 focus:outline-none focus:ring-2 focus:ring-amber-400/25 sm:w-16"
             />
           </div>
           <button
+            type="button"
             onClick={handleSetTimer}
-            className="flex-1 h-10 bg-orange-500 hover:bg-orange-400 active:bg-orange-600 text-white font-semibold rounded-xl transition-colors text-sm"
+            className="h-10 min-w-[4.5rem] flex-1 rounded-xl bg-gradient-to-b from-amber-500 to-amber-600 text-sm font-semibold text-amber-950 shadow-md shadow-amber-950/25 transition hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/50"
           >
             Set
           </button>
           {cookTimerMinutes !== null && (
             <button
+              type="button"
               onClick={handleClearTimer}
-              className="h-10 px-3 bg-gray-700 hover:bg-gray-600 text-gray-300 font-semibold rounded-xl transition-colors text-sm"
+              className="h-10 rounded-xl border border-zinc-600/80 bg-zinc-800/60 px-3 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-700/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40"
             >
               Clear
             </button>
           )}
         </div>
       </div>
-    </div>
+    </AppPanel>
   )
 }
