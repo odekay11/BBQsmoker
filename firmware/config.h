@@ -1,8 +1,8 @@
 #pragma once
 
 // WiFi
-static const char* WIFI_SSID     = "";
-static const char* WIFI_PASSWORD = "";
+static const char* WIFI_SSID     = "lapabackhaus";
+static const char* WIFI_PASSWORD = "hybridgirls";
 
 // HiveMQ
 static const char* MQTT_HOST      = "c3d71cf3320e46e4b3d517dd60f64fb4.s1.eu.hivemq.cloud";   // e.g. abc123.s1.eu.hivemq.cloud
