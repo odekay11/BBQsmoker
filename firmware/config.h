@@ -21,12 +21,15 @@ static const char* TOPIC_POWER   = "smoker/power";
 // Pin assignments
 const int SSR_PIN    = 26;
 const int TC1_CS_PIN = 5;  // Chamber thermocouple chip select
-const int TC2_CS_PIN = 17; // Meat thermocouple chip select
+const int TC2_CS_PIN = 25; // Meat thermocouple chip select
 
 // PID tuning — tune these for your setup
-const double PID_KP = 2.0;
-const double PID_KI = 5.0;
-const double PID_KD = 1.0;
+// Kp=5.0: stronger proportional braking as temperature approaches setpoint
+// Ki=0.05: slow integral accumulation to minimize windup overshoot on startup
+// Kd=15.0: aggressive derivative to resist thermal coasting after SSR cuts off
+const double PID_KP = 5.0;
+const double PID_KI = 0.05;
+const double PID_KD = 15.0;
 
 // Slow PWM control window (milliseconds)
 // SSRs switch mains AC — switching too fast can cause problems.

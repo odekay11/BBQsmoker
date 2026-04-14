@@ -77,21 +77,36 @@ void loop() {
     if (now - lastRead >= READ_INTERVAL) {
         lastRead = now;
 
-        // Read chamber temperature; hold last good value on fault
+        // Read chamber temperature; require 3 consecutive faults before holding
+        // to avoid acting on transient noise spikes from SSR switching.
+        static int chamberFaultCount = 0;
         float chamberTemp = readChamberTemp();
         if (chamberTemp < 0) {
-            Serial.println("[WARN] Chamber thermocouple fault — holding last value.");
-            chamberTemp = lastChamberTemp;
+            chamberFaultCount++;
+            if (chamberFaultCount >= 3) {
+                Serial.println("[WARN] Chamber thermocouple fault — holding last value.");
+                chamberTemp = lastChamberTemp;
+            } else {
+                chamberTemp = lastChamberTemp; // use last good silently on transient
+            }
         } else {
+            chamberFaultCount = 0;
             lastChamberTemp = chamberTemp;
         }
 
-        // Read meat temperature; hold last good value on fault
+        // Read meat temperature; require 3 consecutive faults before holding
+        static int meatFaultCount = 0;
         float meatTemp = readMeatTemp();
         if (meatTemp < 0) {
-            Serial.println("[WARN] Meat thermocouple fault — holding last value.");
-            meatTemp = lastMeatTemp;
+            meatFaultCount++;
+            if (meatFaultCount >= 3) {
+                Serial.println("[WARN] Meat thermocouple fault — holding last value.");
+                meatTemp = lastMeatTemp;
+            } else {
+                meatTemp = lastMeatTemp; // use last good silently on transient
+            }
         } else {
+            meatFaultCount = 0;
             lastMeatTemp = meatTemp;
         }
 
