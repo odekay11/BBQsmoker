@@ -36,5 +36,7 @@ float readChamberTemp() {
 }
 
 float readMeatTemp() {
-    return readTC(tc2, "Meat");
+    float temp = readTC(tc2, "Meat");
+    if (temp < 0) return temp; // propagate fault
+    return temp + MEAT_TEMP_OFFSET;
 }

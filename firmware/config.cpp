@@ -1,4 +1,4 @@
 #include "config.h"
 
-double targetTemp    = 225.0;
+double targetTemp    = 210.0;
 bool   smokerEnabled = false;
