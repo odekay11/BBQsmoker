@@ -10,8 +10,9 @@
 static PubSubClient& client() { return getMQTTClient(); }
 
 void setUp(void) {
-    targetTemp    = 225.0;
-    smokerEnabled = false;
+    targetTemp     = 225.0;
+    targetMeatTemp = 165.0;
+    smokerEnabled  = false;
     initMQTT();             // registers mqttCallback via setCallback()
     client().clearPublished();
 }
@@ -44,6 +45,13 @@ void test_publishData_json_contains_ssr(void) {
     publishData(224.5f, 145.2f, true);
     const std::string& payload = client().published[0].payload;
     TEST_ASSERT_TRUE(payload.find("\"ssr\"") != std::string::npos);
+}
+
+void test_publishData_json_contains_meat_target(void) {
+    targetMeatTemp = 165.0;
+    publishData(224.5f, 145.2f, true);
+    const std::string& payload = client().published[0].payload;
+    TEST_ASSERT_TRUE(payload.find("\"meatTarget\"") != std::string::npos);
 }
 
 // ---------------------------------------------------------------------------
@@ -88,6 +96,20 @@ void test_callback_negative_leaves_target_unchanged(void) {
 }
 
 // ---------------------------------------------------------------------------
+// MQTT callback — meat target temperature
+// ---------------------------------------------------------------------------
+
+void test_callback_valid_float_updates_meat_target(void) {
+    client().simulateReceive(TOPIC_MEAT_TARGET, "190.0");
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, 190.0f, (float)targetMeatTemp);
+}
+
+void test_callback_zero_leaves_meat_target_unchanged(void) {
+    client().simulateReceive(TOPIC_MEAT_TARGET, "0");
+    TEST_ASSERT_FLOAT_WITHIN(0.1f, 165.0f, (float)targetMeatTemp);
+}
+
+// ---------------------------------------------------------------------------
 // MQTT callback — power control
 // ---------------------------------------------------------------------------
 
@@ -120,9 +142,12 @@ int main(int argc, char** argv) {
     RUN_TEST(test_publishData_uses_chamber_topic);
     RUN_TEST(test_publishData_publishes_ssr_status_separately);
     RUN_TEST(test_publishData_ssr_off_sends_OFF);
+    RUN_TEST(test_publishData_json_contains_meat_target);
     RUN_TEST(test_callback_valid_float_updates_target);
     RUN_TEST(test_callback_zero_leaves_target_unchanged);
     RUN_TEST(test_callback_negative_leaves_target_unchanged);
+    RUN_TEST(test_callback_valid_float_updates_meat_target);
+    RUN_TEST(test_callback_zero_leaves_meat_target_unchanged);
     RUN_TEST(test_callback_on_enables_smoker);
     RUN_TEST(test_callback_off_disables_smoker);
     RUN_TEST(test_callback_unknown_msg_leaves_smoker_unchanged);

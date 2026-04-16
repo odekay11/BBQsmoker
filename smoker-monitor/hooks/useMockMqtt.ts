@@ -12,6 +12,7 @@ interface SmokerState {
   chamberTemp: number | null
   meatTemp: number | null
   targetTemp: number
+  targetMeatTemp: number
   ssrStatus: boolean
   connected: boolean
   history: HistoryEntry[]
@@ -19,6 +20,7 @@ interface SmokerState {
   elapsedSeconds: number
   cookTimerMinutes: number | null
   setTargetTemp: (temp: number) => void
+  setTargetMeatTemp: (temp: number) => void
   startSmoker: () => void
   stopSmoker: () => void
   setCookTimer: (minutes: number | null) => void
@@ -28,6 +30,7 @@ export function useMockMqtt(): SmokerState {
   const [chamberTemp, setChamberTemp] = useState<number>(70)
   const [meatTemp, setMeatTemp] = useState<number>(40)
   const [targetTemp, setTargetTempState] = useState<number>(225)
+  const [targetMeatTemp, setTargetMeatTempState] = useState<number>(165)
   const [ssrStatus, setSsrStatus] = useState<boolean>(true)
   const [history, setHistory] = useState<HistoryEntry[]>([])
   const [isRunning, setIsRunning] = useState(false)
@@ -36,7 +39,8 @@ export function useMockMqtt(): SmokerState {
 
   const chamberRef = useRef(70)
   const meatRef = useRef(40)
-  const targetRef = useRef(225)
+  const targetRef     = useRef(225)
+  const meatTargetRef = useRef(165)
   const isRunningRef = useRef(false)
   const startTimeRef = useRef<number | null>(null)
   const cookTimerRef = useRef<number | null>(null)
@@ -49,8 +53,8 @@ export function useMockMqtt(): SmokerState {
       const chamberDelta = chamberRef.current < target ? Math.min(2, target - chamberRef.current) : 0
       chamberRef.current = Math.round((chamberRef.current + chamberDelta) * 10) / 10
 
-      // Meat rises toward 145°F at ~0.5°F per reading
-      const meatDelta = meatRef.current < 145 ? 0.5 : 0
+      // Meat rises toward meatTarget at ~0.5°F per reading
+      const meatDelta = meatRef.current < meatTargetRef.current ? 0.5 : 0
       meatRef.current = Math.round((meatRef.current + meatDelta) * 10) / 10
 
       const newChamber = chamberRef.current
@@ -93,6 +97,11 @@ export function useMockMqtt(): SmokerState {
     setTargetTempState(temp)
   }
 
+  const setTargetMeatTemp = (temp: number) => {
+    meatTargetRef.current = temp
+    setTargetMeatTempState(temp)
+  }
+
   const startSmoker = () => {
     startTimeRef.current = Date.now()
     isRunningRef.current = true
@@ -116,6 +125,7 @@ export function useMockMqtt(): SmokerState {
     chamberTemp,
     meatTemp,
     targetTemp,
+    targetMeatTemp,
     ssrStatus,
     connected: true,
     history,
@@ -123,6 +133,7 @@ export function useMockMqtt(): SmokerState {
     elapsedSeconds,
     cookTimerMinutes,
     setTargetTemp,
+    setTargetMeatTemp,
     startSmoker,
     stopSmoker,
     setCookTimer,

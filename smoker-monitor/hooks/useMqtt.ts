@@ -14,6 +14,7 @@ interface SmokerState {
   chamberTemp: number | null
   meatTemp: number | null
   targetTemp: number
+  targetMeatTemp: number
   ssrStatus: boolean
   connected: boolean
   history: HistoryEntry[]
@@ -21,6 +22,7 @@ interface SmokerState {
   elapsedSeconds: number
   cookTimerMinutes: number | null
   setTargetTemp: (temp: number) => void
+  setTargetMeatTemp: (temp: number) => void
   startSmoker: () => void
   stopSmoker: () => void
   setCookTimer: (minutes: number | null) => void
@@ -30,6 +32,7 @@ export function useMqtt(): SmokerState {
   const [chamberTemp, setChamberTemp] = useState<number | null>(null)
   const [meatTemp, setMeatTemp] = useState<number | null>(null)
   const [targetTemp, setTargetTempState] = useState<number>(225)
+  const [targetMeatTemp, setTargetMeatTempState] = useState<number>(165)
   const [ssrStatus, setSsrStatus] = useState<boolean>(false)
   const [connected, setConnected] = useState<boolean>(false)
   const [history, setHistory] = useState<HistoryEntry[]>([])
@@ -80,6 +83,7 @@ export function useMqtt(): SmokerState {
           setMeatTemp(data.meat)
           if (data.target !== undefined) setTargetTempState(data.target)
           if (data.ssr !== undefined) setSsrStatus(data.ssr)
+          if (data.meatTarget !== undefined) setTargetMeatTempState(data.meatTarget)
 
           const now = new Date()
           const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
@@ -123,6 +127,13 @@ export function useMqtt(): SmokerState {
     }
   }
 
+  const setTargetMeatTemp = (temp: number) => {
+    setTargetMeatTempState(temp)
+    if (clientRef.current?.connected) {
+      clientRef.current.publish(mqttConfig.topics.meatTarget, String(temp))
+    }
+  }
+
   const startSmoker = () => {
     startTimeRef.current = Date.now()
     isRunningRef.current = true
@@ -149,8 +160,8 @@ export function useMqtt(): SmokerState {
   }
 
   return {
-    chamberTemp, meatTemp, targetTemp, ssrStatus, connected, history,
+    chamberTemp, meatTemp, targetTemp, targetMeatTemp, ssrStatus, connected, history,
     isRunning, elapsedSeconds, cookTimerMinutes,
-    setTargetTemp, startSmoker, stopSmoker, setCookTimer,
+    setTargetTemp, setTargetMeatTemp, startSmoker, stopSmoker, setCookTimer,
   }
 }

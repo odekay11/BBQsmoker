@@ -12,6 +12,7 @@ export const mqttConfig = {
     meat:    'smoker/meat/temperature',
     target:  'smoker/target/temperature',
     ssr:     'smoker/ssr/status',
-    power:   'smoker/power',
+    power:      'smoker/power',
+    meatTarget: 'smoker/meat/target',
   }
 }

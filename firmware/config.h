@@ -16,7 +16,8 @@ static const char* TOPIC_CHAMBER = "smoker/chamber/temperature";
 static const char* TOPIC_MEAT    = "smoker/meat/temperature";
 static const char* TOPIC_TARGET  = "smoker/target/temperature";
 static const char* TOPIC_SSR     = "smoker/ssr/status";
-static const char* TOPIC_POWER   = "smoker/power";
+static const char* TOPIC_POWER       = "smoker/power";
+static const char* TOPIC_MEAT_TARGET = "smoker/meat/target";
 
 // Thermocouple calibration offsets (Fahrenheit)
 // Positive value = probe reads low, negative = reads high
@@ -42,6 +43,9 @@ const int WINDOW_SIZE = 10000;
 
 // Default target temperature (Fahrenheit) — defined in config.cpp
 extern double targetTemp;
+
+// Target internal meat temperature (Fahrenheit) — defined in config.cpp
+extern double targetMeatTemp;
 
 // Controls whether the PID/SSR are active.
 // Set to true by MQTT "on" message, false by "off" message.

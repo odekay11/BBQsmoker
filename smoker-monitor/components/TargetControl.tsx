@@ -6,15 +6,15 @@ import AppPanel from '@/components/AppPanel'
 interface TargetControlProps {
   targetTemp: number
   onSetTarget: (temp: number) => void
+  label?: string
+  min?: number
+  max?: number
 }
 
-const MIN_TEMP = 150
-const MAX_TEMP = 350
-
-export default function TargetControl({ targetTemp, onSetTarget }: TargetControlProps) {
+export default function TargetControl({ targetTemp, onSetTarget, label, min = 150, max = 350 }: TargetControlProps) {
   const clamp = useCallback(
-    (val: number) => Math.min(MAX_TEMP, Math.max(MIN_TEMP, val)),
-    [],
+    (val: number) => Math.min(max, Math.max(min, val)),
+    [min, max],
   )
 
   const [draft, setDraft] = useState(() => String(targetTemp))
@@ -78,6 +78,11 @@ export default function TargetControl({ targetTemp, onSetTarget }: TargetControl
 
   return (
     <AppPanel className="p-4">
+      {label && (
+        <p className="mb-0.5 text-xs font-bold uppercase tracking-[0.15em] text-amber-400/80">
+          {label}
+        </p>
+      )}
       <p className="mb-1 text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">
         Target temperature
       </p>
@@ -104,7 +109,7 @@ export default function TargetControl({ targetTemp, onSetTarget }: TargetControl
           onBlur={handleBlur}
           onKeyDown={handleKeyDown}
           aria-label="Target temperature in degrees Fahrenheit"
-          placeholder={`${MIN_TEMP}–${MAX_TEMP}`}
+          placeholder={`${min}–${max}`}
           className="h-12 min-w-0 flex-1 rounded-xl border border-zinc-600/80 bg-zinc-950/50 px-2 text-center text-xl font-semibold tabular-nums text-zinc-100 placeholder:text-zinc-600 focus:border-amber-400/60 focus:outline-none focus:ring-2 focus:ring-amber-400/30 sm:max-w-[5.5rem] sm:flex-none sm:px-3"
         />
         <button

@@ -25,6 +25,16 @@ static void mqttCallback(char* topic, byte* payload, unsigned int length) {
         }
     }
 
+    if (strcmp(topic, TOPIC_MEAT_TARGET) == 0) {
+        float newMeatTarget = atof(msg);
+        if (newMeatTarget > 0) {
+            targetMeatTemp = newMeatTarget;
+            Serial.print("[MQTT] New meat target temperature: ");
+            Serial.print(targetMeatTemp);
+            Serial.println(" °F");
+        }
+    }
+
     if (strcmp(topic, TOPIC_POWER) == 0) {
         if (strcmp(msg, "on") == 0) {
             smokerEnabled = true;
@@ -53,10 +63,13 @@ void reconnect() {
             Serial.println(" connected.");
             mqttClient.subscribe(TOPIC_TARGET);
             mqttClient.subscribe(TOPIC_POWER);
+            mqttClient.subscribe(TOPIC_MEAT_TARGET);
             Serial.print("[MQTT] Subscribed to ");
             Serial.print(TOPIC_TARGET);
             Serial.print(", ");
-            Serial.println(TOPIC_POWER);
+            Serial.print(TOPIC_POWER);
+            Serial.print(", ");
+            Serial.println(TOPIC_MEAT_TARGET);
         } else {
             Serial.print(" failed, rc=");
             Serial.print(mqttClient.state());
@@ -67,14 +80,15 @@ void reconnect() {
 }
 
 void publishData(float chamber, float meat, bool ssrOn) {
-    // Build JSON: {"chamber":224.5,"meat":145.2,"target":225.0,"ssr":true}
-    StaticJsonDocument<128> doc;
-    doc["chamber"] = chamber;
-    doc["meat"]    = meat;
-    doc["target"]  = targetTemp;
-    doc["ssr"]     = ssrOn;
+    // Build JSON: {"chamber":224.5,"meat":145.2,"target":225.0,"ssr":true,"meatTarget":165.0}
+    StaticJsonDocument<160> doc;
+    doc["chamber"]    = chamber;
+    doc["meat"]       = meat;
+    doc["target"]     = targetTemp;
+    doc["ssr"]        = ssrOn;
+    doc["meatTarget"] = targetMeatTemp;
 
-    char jsonBuf[128];
+    char jsonBuf[160];
     serializeJson(doc, jsonBuf, sizeof(jsonBuf));
 
     mqttClient.publish(TOPIC_CHAMBER, jsonBuf);

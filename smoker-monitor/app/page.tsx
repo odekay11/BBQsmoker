@@ -12,9 +12,9 @@ const useSmokerData = process.env.NEXT_PUBLIC_MOCK_MODE === 'true' ? useMockMqtt
 
 export default function Home() {
   const {
-    chamberTemp, meatTemp, targetTemp, ssrStatus, connected, history,
+    chamberTemp, meatTemp, targetTemp, targetMeatTemp, ssrStatus, connected, history,
     isRunning, elapsedSeconds, cookTimerMinutes,
-    setTargetTemp, startSmoker, stopSmoker, setCookTimer,
+    setTargetTemp, setTargetMeatTemp, startSmoker, stopSmoker, setCookTimer,
   } = useSmokerData()
 
   return (
@@ -51,7 +51,7 @@ export default function Home() {
             temp={chamberTemp}
             targetTemp={targetTemp}
           />
-          <TemperatureGauge variant="meat" label="Meat" temp={meatTemp} />
+          <TemperatureGauge variant="meat" label="Meat" temp={meatTemp} targetTemp={targetMeatTemp} />
         </div>
 
         {/* SSR status */}
@@ -67,8 +67,11 @@ export default function Home() {
           onSetCookTimer={setCookTimer}
         />
 
-        {/* Target control */}
-        <TargetControl targetTemp={targetTemp} onSetTarget={setTargetTemp} />
+        {/* Target controls */}
+        <div className="flex gap-3">
+          <TargetControl label="Chamber" targetTemp={targetTemp} onSetTarget={setTargetTemp} />
+          <TargetControl label="Meat" targetTemp={targetMeatTemp} onSetTarget={setTargetMeatTemp} min={100} max={210} />
+        </div>
 
         {/* Chart */}
         <TemperatureChart history={history} targetTemp={targetTemp} />
