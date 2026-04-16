@@ -9,3 +9,6 @@ void computePID(double currentTemp);
 
 // Returns true if the SSR is currently energized (HIGH).
 bool getSSRStatus();
+
+// Returns the current PID output value (0–255).
+double getPIDOutput();

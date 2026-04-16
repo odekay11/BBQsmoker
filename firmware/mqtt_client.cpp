@@ -79,16 +79,17 @@ void reconnect() {
     }
 }
 
-void publishData(float chamber, float meat, bool ssrOn) {
-    // Build JSON: {"chamber":224.5,"meat":145.2,"target":225.0,"ssr":true,"meatTarget":165.0}
-    StaticJsonDocument<160> doc;
+void publishData(float chamber, float meat, bool ssrOn, double pidOutput) {
+    // Build JSON: {"chamber":224.5,"meat":145.2,"target":225.0,"ssr":true,"meatTarget":165.0,"pidOutput":255}
+    StaticJsonDocument<192> doc;
     doc["chamber"]    = chamber;
     doc["meat"]       = meat;
     doc["target"]     = targetTemp;
     doc["ssr"]        = ssrOn;
     doc["meatTarget"] = targetMeatTemp;
+    doc["pidOutput"]  = (int)pidOutput;
 
-    char jsonBuf[160];
+    char jsonBuf[192];
     serializeJson(doc, jsonBuf, sizeof(jsonBuf));
 
     mqttClient.publish(TOPIC_CHAMBER, jsonBuf);

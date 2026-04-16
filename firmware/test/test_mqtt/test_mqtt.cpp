@@ -9,6 +9,8 @@
 // inspect published[] and inject simulated incoming messages.
 static PubSubClient& client() { return getMQTTClient(); }
 
+static const double TEST_PID_OUTPUT = 200.0;
+
 void setUp(void) {
     targetTemp     = 225.0;
     targetMeatTemp = 165.0;
@@ -24,34 +26,40 @@ void tearDown(void) {}
 // ---------------------------------------------------------------------------
 
 void test_publishData_json_contains_chamber(void) {
-    publishData(224.5f, 145.2f, true);
+    publishData(224.5f, 145.2f, true, TEST_PID_OUTPUT);
     const std::string& payload = client().published[0].payload;
     TEST_ASSERT_TRUE(payload.find("\"chamber\"") != std::string::npos);
 }
 
 void test_publishData_json_contains_meat(void) {
-    publishData(224.5f, 145.2f, true);
+    publishData(224.5f, 145.2f, true, TEST_PID_OUTPUT);
     const std::string& payload = client().published[0].payload;
     TEST_ASSERT_TRUE(payload.find("\"meat\"") != std::string::npos);
 }
 
 void test_publishData_json_contains_target(void) {
-    publishData(224.5f, 145.2f, true);
+    publishData(224.5f, 145.2f, true, TEST_PID_OUTPUT);
     const std::string& payload = client().published[0].payload;
     TEST_ASSERT_TRUE(payload.find("\"target\"") != std::string::npos);
 }
 
 void test_publishData_json_contains_ssr(void) {
-    publishData(224.5f, 145.2f, true);
+    publishData(224.5f, 145.2f, true, TEST_PID_OUTPUT);
     const std::string& payload = client().published[0].payload;
     TEST_ASSERT_TRUE(payload.find("\"ssr\"") != std::string::npos);
 }
 
 void test_publishData_json_contains_meat_target(void) {
     targetMeatTemp = 165.0;
-    publishData(224.5f, 145.2f, true);
+    publishData(224.5f, 145.2f, true, TEST_PID_OUTPUT);
     const std::string& payload = client().published[0].payload;
     TEST_ASSERT_TRUE(payload.find("\"meatTarget\"") != std::string::npos);
+}
+
+void test_publishData_json_contains_pid_output(void) {
+    publishData(224.5f, 145.2f, true, TEST_PID_OUTPUT);
+    const std::string& payload = client().published[0].payload;
+    TEST_ASSERT_TRUE(payload.find("\"pidOutput\"") != std::string::npos);
 }
 
 // ---------------------------------------------------------------------------
@@ -59,19 +67,19 @@ void test_publishData_json_contains_meat_target(void) {
 // ---------------------------------------------------------------------------
 
 void test_publishData_uses_chamber_topic(void) {
-    publishData(224.5f, 145.2f, true);
+    publishData(224.5f, 145.2f, true, TEST_PID_OUTPUT);
     TEST_ASSERT_EQUAL_STRING(TOPIC_CHAMBER, client().published[0].topic.c_str());
 }
 
 void test_publishData_publishes_ssr_status_separately(void) {
-    publishData(224.5f, 145.2f, true);
+    publishData(224.5f, 145.2f, true, TEST_PID_OUTPUT);
     TEST_ASSERT_EQUAL(2, (int)client().published.size());
     TEST_ASSERT_EQUAL_STRING(TOPIC_SSR, client().published[1].topic.c_str());
     TEST_ASSERT_EQUAL_STRING("ON",      client().published[1].payload.c_str());
 }
 
 void test_publishData_ssr_off_sends_OFF(void) {
-    publishData(224.5f, 145.2f, false);
+    publishData(224.5f, 145.2f, false, TEST_PID_OUTPUT);
     TEST_ASSERT_EQUAL_STRING("OFF", client().published[1].payload.c_str());
 }
 
@@ -143,6 +151,7 @@ int main(int argc, char** argv) {
     RUN_TEST(test_publishData_publishes_ssr_status_separately);
     RUN_TEST(test_publishData_ssr_off_sends_OFF);
     RUN_TEST(test_publishData_json_contains_meat_target);
+    RUN_TEST(test_publishData_json_contains_pid_output);
     RUN_TEST(test_callback_valid_float_updates_target);
     RUN_TEST(test_callback_zero_leaves_target_unchanged);
     RUN_TEST(test_callback_negative_leaves_target_unchanged);

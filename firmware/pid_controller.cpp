@@ -72,6 +72,10 @@ bool getSSRStatus() {
     return ssrOn;
 }
 
+double getPIDOutput() {
+    return pidOutput;
+}
+
 #ifdef UNIT_TEST
 // Bypass PID Compute() to set pidOutput to a precise value for slow-PWM tests.
 void _test_forcePIDOutput(double v) { pidOutput = v; }

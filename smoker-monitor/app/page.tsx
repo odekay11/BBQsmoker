@@ -68,9 +68,15 @@ export default function Home() {
         />
 
         {/* Target controls */}
-        <div className="flex gap-3">
+        <div className="flex flex-col gap-3">
           <TargetControl label="Chamber" targetTemp={targetTemp} onSetTarget={setTargetTemp} />
-          <TargetControl label="Meat" targetTemp={targetMeatTemp} onSetTarget={setTargetMeatTemp} min={100} max={210} />
+          <TargetControl
+            label="Meat"
+            targetTemp={targetMeatTemp}
+            onSetTarget={setTargetMeatTemp}
+            min={100}
+            max={210}
+          />
         </div>
 
         {/* Chart */}

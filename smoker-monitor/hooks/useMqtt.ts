@@ -44,6 +44,7 @@ export function useMqtt(): SmokerState {
   const isRunningRef = useRef(false)
   const startTimeRef = useRef<number | null>(null)
   const cookTimerRef = useRef<number | null>(null)
+  const lastHistoryTimeRef = useRef<number>(0)
 
   useEffect(() => {
     const client = mqtt.connect(mqttConfig.url, mqttConfig.options)
@@ -61,8 +62,9 @@ export function useMqtt(): SmokerState {
     client.on('offline', () => setConnected(false))
 
     client.on('message', (topic, payload) => {
+      const raw = payload.toString()
       try {
-        const data = JSON.parse(payload.toString())
+        const data = JSON.parse(raw)
 
         if (topic === mqttConfig.topics.chamber && data.chamber !== undefined) {
           setChamberTemp(data.chamber)
@@ -85,16 +87,45 @@ export function useMqtt(): SmokerState {
           if (data.ssr !== undefined) setSsrStatus(data.ssr)
           if (data.meatTarget !== undefined) setTargetMeatTempState(data.meatTarget)
 
-          const now = new Date()
-          const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-          setHistory(prev => {
-            const entry: HistoryEntry = { time: timeStr, chamber: data.chamber, meat: data.meat }
-            const next = [...prev, entry]
-            return next.length > 60 ? next.slice(next.length - 60) : next
-          })
+          const nowMs = Date.now()
+          if (nowMs - lastHistoryTimeRef.current >= 5 * 60 * 1000) {
+            lastHistoryTimeRef.current = nowMs
+            const timeStr = new Date(nowMs).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+            setHistory(prev => [...prev, { time: timeStr, chamber: data.chamber, meat: data.meat }])
+          }
         }
       } catch {
         // ignore malformed messages
+      }
+
+      // Session state — plain string payloads, retained so late-joining browsers sync up
+      if (topic === mqttConfig.topics.sessionStart) {
+        if (raw) {
+          const ts = Number(raw)
+          if (!isNaN(ts)) {
+            startTimeRef.current = ts
+            isRunningRef.current = true
+            setIsRunning(true)
+          }
+        } else {
+          startTimeRef.current = null
+          isRunningRef.current = false
+          setIsRunning(false)
+          setElapsedSeconds(0)
+        }
+      }
+
+      if (topic === mqttConfig.topics.sessionCookTimer) {
+        if (raw) {
+          const mins = Number(raw)
+          if (!isNaN(mins)) {
+            cookTimerRef.current = mins
+            setCookTimerMinutesState(mins)
+          }
+        } else {
+          cookTimerRef.current = null
+          setCookTimerMinutesState(null)
+        }
       }
     })
 
@@ -110,6 +141,8 @@ export function useMqtt(): SmokerState {
         setIsRunning(false)
         if (client.connected) {
           client.publish(mqttConfig.topics.power, 'off')
+          client.publish(mqttConfig.topics.sessionStart, '', { retain: true })
+          client.publish(mqttConfig.topics.sessionCookTimer, '', { retain: true })
         }
       }
     }, 1000)
@@ -135,12 +168,14 @@ export function useMqtt(): SmokerState {
   }
 
   const startSmoker = () => {
-    startTimeRef.current = Date.now()
+    const now = Date.now()
+    startTimeRef.current = now
     isRunningRef.current = true
     setIsRunning(true)
     setElapsedSeconds(0)
     if (clientRef.current?.connected) {
       clientRef.current.publish(mqttConfig.topics.power, 'on')
+      clientRef.current.publish(mqttConfig.topics.sessionStart, String(now), { retain: true })
     }
   }
 
@@ -151,12 +186,21 @@ export function useMqtt(): SmokerState {
     setElapsedSeconds(0)
     if (clientRef.current?.connected) {
       clientRef.current.publish(mqttConfig.topics.power, 'off')
+      clientRef.current.publish(mqttConfig.topics.sessionStart, '', { retain: true })
+      clientRef.current.publish(mqttConfig.topics.sessionCookTimer, '', { retain: true })
     }
   }
 
   const setCookTimer = (minutes: number | null) => {
     cookTimerRef.current = minutes
     setCookTimerMinutesState(minutes)
+    if (clientRef.current?.connected) {
+      clientRef.current.publish(
+        mqttConfig.topics.sessionCookTimer,
+        minutes !== null ? String(minutes) : '',
+        { retain: true }
+      )
+    }
   }
 
   return {

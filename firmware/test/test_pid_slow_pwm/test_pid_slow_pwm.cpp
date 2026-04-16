@@ -80,6 +80,11 @@ void test_getSSRStatus_matches_pin(void) {
     TEST_ASSERT_EQUAL(ssr ? HIGH : LOW, _pin_states[SSR_PIN]);
 }
 
+void test_getPIDOutput_returns_forced_value(void) {
+    _test_forcePIDOutput(128.0);
+    TEST_ASSERT_FLOAT_WITHIN(0.01f, 128.0f, (float)getPIDOutput());
+}
+
 // ---------------------------------------------------------------------------
 
 int main(int argc, char** argv) {
@@ -89,5 +94,6 @@ int main(int argc, char** argv) {
     RUN_TEST(test_zero_output_ssr_low);
     RUN_TEST(test_window_rollover_starts_new_cycle);
     RUN_TEST(test_getSSRStatus_matches_pin);
+    RUN_TEST(test_getPIDOutput_returns_forced_value);
     return UNITY_END();
 }

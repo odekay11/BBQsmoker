@@ -44,6 +44,7 @@ export function useMockMqtt(): SmokerState {
   const isRunningRef = useRef(false)
   const startTimeRef = useRef<number | null>(null)
   const cookTimerRef = useRef<number | null>(null)
+  const lastHistoryTimeRef = useRef<number>(0)
 
   useEffect(() => {
     const dataInterval = setInterval(() => {
@@ -64,13 +65,12 @@ export function useMockMqtt(): SmokerState {
       setMeatTemp(newMeat)
       setSsrStatus(newChamber < target - 5)
 
-      const now = new Date()
-      const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })
-      setHistory(prev => {
-        const entry: HistoryEntry = { time: timeStr, chamber: newChamber, meat: newMeat }
-        const next = [...prev, entry]
-        return next.length > 60 ? next.slice(next.length - 60) : next
-      })
+      const nowMs = Date.now()
+      if (nowMs - lastHistoryTimeRef.current >= 5 * 60 * 1000) {
+        lastHistoryTimeRef.current = nowMs
+        const timeStr = new Date(nowMs).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
+        setHistory(prev => [...prev, { time: timeStr, chamber: newChamber, meat: newMeat }])
+      }
     }, 2000)
 
     // Stopwatch interval — uses refs to avoid stale closures

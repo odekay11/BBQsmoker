@@ -25,6 +25,9 @@ interface TemperatureChartProps {
 }
 
 export default function TemperatureChart({ history, targetTemp }: TemperatureChartProps) {
+  // Show ~6 time labels regardless of cook length
+  const xAxisInterval = Math.max(0, Math.floor(history.length / 6) - 1)
+
   return (
     <AppPanel className="p-4">
       <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">
@@ -37,7 +40,7 @@ export default function TemperatureChart({ history, targetTemp }: TemperatureCha
             dataKey="time"
             tick={{ fill: '#71717a', fontSize: 11 }}
             tickLine={false}
-            interval={9}
+            interval={xAxisInterval}
             stroke="rgba(63, 63, 70, 0.6)"
           />
           <YAxis

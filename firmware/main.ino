@@ -112,7 +112,7 @@ void loop() {
 
         // Publish to HiveMQ
         bool ssrOn = getSSRStatus();
-        publishData(chamberTemp, meatTemp, ssrOn);
+        publishData(chamberTemp, meatTemp, ssrOn, getPIDOutput());
 
         // Debug output
         Serial.printf("Chamber: %.1f°F | Meat: %.1f°F | Target: %.1f°F | SSR: %s\n",
