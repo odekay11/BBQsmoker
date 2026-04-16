@@ -16,5 +16,6 @@ export const mqttConfig = {
     meatTarget:       'smoker/meat/target',
     sessionStart:     'smoker/session/startTime',
     sessionCookTimer: 'smoker/session/cookTimer',
+    sessionHistory:   'smoker/session/history',
   }
 }

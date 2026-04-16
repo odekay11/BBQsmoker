@@ -5,6 +5,7 @@ import mqtt from 'mqtt'
 import { mqttConfig } from '@/lib/mqttConfig'
 
 interface HistoryEntry {
+  ts: number
   time: string
   chamber: number
   meat: number
@@ -45,6 +46,7 @@ export function useMqtt(): SmokerState {
   const startTimeRef = useRef<number | null>(null)
   const cookTimerRef = useRef<number | null>(null)
   const lastHistoryTimeRef = useRef<number>(0)
+  const historyRef = useRef<HistoryEntry[]>([])
 
   useEffect(() => {
     const client = mqtt.connect(mqttConfig.url, mqttConfig.options)
@@ -88,10 +90,16 @@ export function useMqtt(): SmokerState {
           if (data.meatTarget !== undefined) setTargetMeatTempState(data.meatTarget)
 
           const nowMs = Date.now()
-          if (nowMs - lastHistoryTimeRef.current >= 5 * 60 * 1000) {
+          if (isRunningRef.current && nowMs - lastHistoryTimeRef.current >= 5 * 60 * 1000) {
             lastHistoryTimeRef.current = nowMs
             const timeStr = new Date(nowMs).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' })
-            setHistory(prev => [...prev, { time: timeStr, chamber: data.chamber, meat: data.meat }])
+            const newEntry: HistoryEntry = { ts: nowMs, time: timeStr, chamber: data.chamber, meat: data.meat }
+            const newHistory = [...historyRef.current, newEntry]
+            historyRef.current = newHistory
+            setHistory(newHistory)
+            if (client.connected) {
+              client.publish(mqttConfig.topics.sessionHistory, JSON.stringify(newHistory), { retain: true })
+            }
           }
         }
       } catch {
@@ -127,6 +135,19 @@ export function useMqtt(): SmokerState {
           setCookTimerMinutesState(null)
         }
       }
+
+      if (topic === mqttConfig.topics.sessionHistory) {
+        try {
+          const parsed = JSON.parse(raw) as HistoryEntry[]
+          if (Array.isArray(parsed)) {
+            historyRef.current = parsed
+            setHistory(parsed)
+            if (parsed.length > 0) {
+              lastHistoryTimeRef.current = parsed[parsed.length - 1].ts
+            }
+          }
+        } catch { /* ignore malformed */ }
+      }
     })
 
     // Stopwatch interval — uses refs to avoid stale closures
@@ -143,6 +164,7 @@ export function useMqtt(): SmokerState {
           client.publish(mqttConfig.topics.power, 'off')
           client.publish(mqttConfig.topics.sessionStart, '', { retain: true })
           client.publish(mqttConfig.topics.sessionCookTimer, '', { retain: true })
+          client.publish(mqttConfig.topics.sessionHistory, '', { retain: true })
         }
       }
     }, 1000)
@@ -171,11 +193,15 @@ export function useMqtt(): SmokerState {
     const now = Date.now()
     startTimeRef.current = now
     isRunningRef.current = true
+    historyRef.current = []
+    lastHistoryTimeRef.current = 0
     setIsRunning(true)
     setElapsedSeconds(0)
+    setHistory([])
     if (clientRef.current?.connected) {
       clientRef.current.publish(mqttConfig.topics.power, 'on')
       clientRef.current.publish(mqttConfig.topics.sessionStart, String(now), { retain: true })
+      clientRef.current.publish(mqttConfig.topics.sessionHistory, '[]', { retain: true })
     }
   }
 
@@ -188,6 +214,7 @@ export function useMqtt(): SmokerState {
       clientRef.current.publish(mqttConfig.topics.power, 'off')
       clientRef.current.publish(mqttConfig.topics.sessionStart, '', { retain: true })
       clientRef.current.publish(mqttConfig.topics.sessionCookTimer, '', { retain: true })
+      clientRef.current.publish(mqttConfig.topics.sessionHistory, '', { retain: true })
     }
   }
 
