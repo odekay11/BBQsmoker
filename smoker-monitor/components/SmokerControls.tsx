@@ -19,6 +19,18 @@ function formatTime(seconds: number): string {
   return [h, m, s].map(v => String(v).padStart(2, '0')).join(':')
 }
 
+const labelStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-barlow), sans-serif',
+  fontSize: '10px',
+  fontWeight: 700,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  color: '#57534e',
+}
+
+const inputClass =
+  'h-11 w-14 rounded-lg text-center text-lg font-bold tabular-nums focus:outline-none sm:w-16'
+
 export default function SmokerControls({
   isRunning,
   elapsedSeconds,
@@ -50,75 +62,110 @@ export default function SmokerControls({
 
   return (
     <AppPanel className="flex flex-col gap-5 p-4">
-      {/* Start / Stop */}
+      {/* ── Start / Stop + Stopwatch ── */}
       <div className="flex flex-col items-center gap-4">
         <button
           type="button"
           onClick={isRunning ? onStop : onStart}
-          className={`h-14 w-full rounded-xl text-lg font-bold transition focus-visible:outline-none focus-visible:ring-2 active:scale-[0.99] ${
-            isRunning
-              ? 'bg-gradient-to-b from-red-500 to-red-600 text-white shadow-lg shadow-red-950/40 focus-visible:ring-red-400/50'
-              : 'bg-gradient-to-b from-emerald-600 to-emerald-700 text-white shadow-lg shadow-emerald-950/35 focus-visible:ring-emerald-400/50'
-          }`}
+          className="h-14 w-full rounded-xl text-base font-bold transition-all focus-visible:outline-none focus-visible:ring-2 active:scale-[0.99]"
+          style={{
+            fontFamily: 'var(--font-barlow), sans-serif',
+            letterSpacing: '0.14em',
+            textTransform: 'uppercase',
+            ...(isRunning
+              ? {
+                  background: 'linear-gradient(180deg, #dc2626 0%, #b91c1c 100%)',
+                  color: '#fee2e2',
+                  boxShadow: '0 4px 20px -4px rgba(185,28,28,0.6)',
+                }
+              : {
+                  background: 'linear-gradient(180deg, #16a34a 0%, #15803d 100%)',
+                  color: '#dcfce7',
+                  boxShadow: '0 4px 20px -4px rgba(21,128,61,0.6)',
+                }),
+          }}
         >
-          {isRunning ? '■  Stop' : '▶  Start'}
+          {isRunning ? '■  Stop Session' : '▶  Start Session'}
         </button>
 
         {/* Stopwatch */}
-        <div className="text-center">
-          <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">
-            Running time
-          </p>
-          <p
-            className={`font-mono text-3xl font-bold tabular-nums tracking-tight ${
-              isRunning ? 'text-emerald-400' : 'text-zinc-600'
-            }`}
+        <div className="flex flex-col items-center gap-1">
+          <span style={labelStyle}>Running time</span>
+          <span
+            style={{
+              fontFamily: 'var(--font-space-mono), monospace',
+              fontSize: '30px',
+              fontWeight: 700,
+              letterSpacing: '-1px',
+              color: isRunning ? '#4ade80' : '#44403c',
+              transition: 'color 0.4s ease',
+            }}
           >
             {formatTime(elapsedSeconds)}
-          </p>
+          </span>
         </div>
       </div>
 
-      <div className="h-px bg-gradient-to-r from-transparent via-zinc-600/50 to-transparent" />
+      {/* ── Divider ── */}
+      <div
+        className="h-px"
+        style={{ background: 'linear-gradient(90deg, transparent, rgba(58,46,34,0.9), transparent)' }}
+      />
 
-      {/* Cook Timer */}
-      <div>
-        <p className="mb-3 text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">
-          Cook timer
-        </p>
+      {/* ── Cook Timer ── */}
+      <div className="flex flex-col gap-3">
+        <span style={labelStyle}>Cook timer</span>
 
-        {/* Countdown display */}
+        {/* Countdown */}
         {cookTimerMinutes !== null && (
-          <div className="mb-3 text-center">
-            <p className="mb-1 text-[0.65rem] font-semibold uppercase tracking-[0.2em] text-zinc-500">
+          <div className="flex flex-col items-center gap-1 py-1">
+            <span style={{ ...labelStyle, color: timedOut ? '#f87171' : '#78716c' }}>
               {timedOut ? 'Time Up!' : 'Remaining'}
-            </p>
-            <p
-              className={`font-mono text-2xl font-bold tabular-nums ${
-                timedOut ? 'text-red-400' : 'text-amber-400'
-              }`}
+            </span>
+            <span
+              style={{
+                fontFamily: 'var(--font-space-mono), monospace',
+                fontSize: '24px',
+                fontWeight: 700,
+                color: timedOut ? '#f87171' : '#fbbf24',
+                letterSpacing: '-1px',
+              }}
             >
               {formatTime(remaining!)}
-            </p>
+            </span>
           </div>
         )}
 
-        {/* Timer inputs */}
+        {/* Inputs */}
         <div className="flex flex-wrap items-end gap-2">
-          <div className="flex flex-col items-center">
-            <span className="mb-1 text-[0.65rem] text-zinc-500">Hrs</span>
+          <div className="flex flex-col items-center gap-1">
+            <span style={labelStyle}>Hrs</span>
             <input
               type="number"
               min={0}
               max={24}
               value={timerHours}
               onChange={e => setTimerHours(Math.max(0, parseInt(e.target.value) || 0))}
-              className="h-10 w-14 rounded-xl border border-zinc-600/80 bg-zinc-950/50 text-center text-lg font-semibold tabular-nums text-zinc-100 focus:border-amber-400/60 focus:outline-none focus:ring-2 focus:ring-amber-400/25 sm:w-16"
+              className={inputClass}
+              style={{
+                fontFamily: 'var(--font-space-mono), monospace',
+                background: '#0c0a09',
+                border: '1px solid rgba(58,46,34,0.8)',
+                color: '#f5f5f4',
+                boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.4)',
+              }}
             />
           </div>
-          <span className="pb-2 text-xl font-bold text-zinc-500">:</span>
-          <div className="flex flex-col items-center">
-            <span className="mb-1 text-[0.65rem] text-zinc-500">Min</span>
+
+          <span
+            className="pb-2 text-xl font-bold"
+            style={{ color: '#44403c', fontFamily: 'var(--font-space-mono), monospace' }}
+          >
+            :
+          </span>
+
+          <div className="flex flex-col items-center gap-1">
+            <span style={labelStyle}>Min</span>
             <input
               type="number"
               min={0}
@@ -127,21 +174,48 @@ export default function SmokerControls({
               onChange={e =>
                 setTimerMinutes(Math.min(59, Math.max(0, parseInt(e.target.value) || 0)))
               }
-              className="h-10 w-14 rounded-xl border border-zinc-600/80 bg-zinc-950/50 text-center text-lg font-semibold tabular-nums text-zinc-100 focus:border-amber-400/60 focus:outline-none focus:ring-2 focus:ring-amber-400/25 sm:w-16"
+              className={inputClass}
+              style={{
+                fontFamily: 'var(--font-space-mono), monospace',
+                background: '#0c0a09',
+                border: '1px solid rgba(58,46,34,0.8)',
+                color: '#f5f5f4',
+                boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.4)',
+              }}
             />
           </div>
+
           <button
             type="button"
             onClick={handleSetTimer}
-            className="h-10 min-w-[4.5rem] flex-1 rounded-xl bg-gradient-to-b from-amber-500 to-amber-600 text-sm font-semibold text-amber-950 shadow-md shadow-amber-950/25 transition hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/50"
+            className="h-11 min-w-16 flex-1 rounded-lg font-bold transition-all active:scale-[0.98] focus-visible:outline-none"
+            style={{
+              fontFamily: 'var(--font-barlow), sans-serif',
+              letterSpacing: '0.14em',
+              fontSize: '13px',
+              textTransform: 'uppercase',
+              background: 'linear-gradient(180deg, #d97706 0%, #b45309 100%)',
+              color: '#1c1108',
+              boxShadow: '0 3px 14px -4px rgba(180,83,9,0.55)',
+            }}
           >
             Set
           </button>
+
           {cookTimerMinutes !== null && (
             <button
               type="button"
               onClick={handleClearTimer}
-              className="h-10 rounded-xl border border-zinc-600/80 bg-zinc-800/60 px-3 text-sm font-semibold text-zinc-300 transition hover:bg-zinc-700/80 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-zinc-500/40"
+              className="h-11 rounded-lg px-3 font-bold transition-all focus-visible:outline-none active:scale-[0.98]"
+              style={{
+                fontFamily: 'var(--font-barlow), sans-serif',
+                letterSpacing: '0.12em',
+                fontSize: '12px',
+                textTransform: 'uppercase',
+                background: '#1a1614',
+                border: '1px solid rgba(58,46,34,0.8)',
+                color: '#78716c',
+              }}
             >
               Clear
             </button>

@@ -11,7 +11,40 @@ interface TargetControlProps {
   max?: number
 }
 
-export default function TargetControl({ targetTemp, onSetTarget, label, min = 150, max = 350 }: TargetControlProps) {
+const labelStyle: React.CSSProperties = {
+  fontFamily: 'var(--font-barlow), sans-serif',
+  fontSize: '10px',
+  fontWeight: 700,
+  letterSpacing: '0.22em',
+  textTransform: 'uppercase',
+  color: '#57534e',
+}
+
+const stepBtnStyle: React.CSSProperties = {
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
+  width: '44px',
+  height: '44px',
+  flexShrink: 0,
+  borderRadius: '10px',
+  fontSize: '22px',
+  fontWeight: 700,
+  background: '#1a1614',
+  border: '1px solid rgba(58,46,34,0.8)',
+  color: '#a8a29e',
+  cursor: 'pointer',
+  transition: 'background 0.15s, color 0.15s',
+  fontFamily: 'var(--font-barlow), sans-serif',
+}
+
+export default function TargetControl({
+  targetTemp,
+  onSetTarget,
+  label,
+  min = 150,
+  max = 350,
+}: TargetControlProps) {
   const clamp = useCallback(
     (val: number) => Math.min(max, Math.max(min, val)),
     [min, max],
@@ -36,31 +69,22 @@ export default function TargetControl({ targetTemp, onSetTarget, label, min = 15
 
   const handleDraftChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value
-    if (raw === '' || /^\d+$/.test(raw)) {
-      setDraft(raw)
-    }
+    if (raw === '' || /^\d+$/.test(raw)) setDraft(raw)
   }
 
   const handleBlur = () => {
-    if (draft === '') {
-      setDraft(String(targetTemp))
-      return
-    }
+    if (draft === '') { setDraft(String(targetTemp)); return }
     const parsed = parseInt(draft, 10)
-    if (!Number.isNaN(parsed)) {
-      setDraft(String(clamp(parsed)))
-    }
+    if (!Number.isNaN(parsed)) setDraft(String(clamp(parsed)))
   }
 
   const handleDecrement = () => {
-    const parsed = parseInt(draft, 10)
-    const base = Number.isNaN(parsed) ? targetTemp : parsed
+    const base = Number.isNaN(parseInt(draft, 10)) ? targetTemp : parseInt(draft, 10)
     setDraft(String(clamp(base - 5)))
   }
 
   const handleIncrement = () => {
-    const parsed = parseInt(draft, 10)
-    const base = Number.isNaN(parsed) ? targetTemp : parsed
+    const base = Number.isNaN(parseInt(draft, 10)) ? targetTemp : parseInt(draft, 10)
     setDraft(String(clamp(base + 5)))
   }
 
@@ -70,35 +94,44 @@ export default function TargetControl({ targetTemp, onSetTarget, label, min = 15
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      e.preventDefault()
-      handleSet()
-    }
+    if (e.key === 'Enter') { e.preventDefault(); handleSet() }
   }
 
   return (
-    <AppPanel className="p-4">
-      {label && (
-        <p className="mb-0.5 text-xs font-bold uppercase tracking-[0.15em] text-amber-400/80">
-          {label}
-        </p>
-      )}
-      <p className="mb-1 text-xs font-semibold uppercase tracking-[0.15em] text-zinc-500">
-        Target temperature
-      </p>
-      <p className="mb-4 text-sm text-zinc-400">
-        SET:{' '}
-        <span className="font-semibold tabular-nums text-zinc-100">{targetTemp}°F</span>
-      </p>
-      <div className="flex items-center gap-2 sm:gap-3">
+    <AppPanel className="px-4 py-3.5">
+      <div className="mb-3 flex items-baseline justify-between">
+        <div className="flex flex-col gap-0.5">
+          {label && (
+            <span style={{ ...labelStyle, color: '#d97706', letterSpacing: '0.18em' }}>
+              {label}
+            </span>
+          )}
+          <span style={labelStyle}>Target temperature</span>
+        </div>
+        <span
+          style={{
+            fontFamily: 'var(--font-space-mono), monospace',
+            fontSize: '20px',
+            fontWeight: 700,
+            color: '#f5f5f4',
+            letterSpacing: '-0.5px',
+          }}
+        >
+          {targetTemp}°
+          <span style={{ fontSize: '11px', color: '#78716c', marginLeft: '2px' }}>F</span>
+        </span>
+      </div>
+
+      <div className="flex items-center gap-2">
         <button
           type="button"
           onClick={handleDecrement}
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-zinc-600/80 bg-zinc-800/80 text-2xl font-bold text-zinc-100 transition hover:bg-zinc-700/90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
           aria-label="Decrease by 5"
+          style={stepBtnStyle}
         >
           −
         </button>
+
         <input
           type="text"
           inputMode="numeric"
@@ -110,20 +143,40 @@ export default function TargetControl({ targetTemp, onSetTarget, label, min = 15
           onKeyDown={handleKeyDown}
           aria-label="Target temperature in degrees Fahrenheit"
           placeholder={`${min}–${max}`}
-          className="h-12 min-w-0 flex-1 rounded-xl border border-zinc-600/80 bg-zinc-950/50 px-2 text-center text-xl font-semibold tabular-nums text-zinc-100 placeholder:text-zinc-600 focus:border-amber-400/60 focus:outline-none focus:ring-2 focus:ring-amber-400/30 sm:max-w-[5.5rem] sm:flex-none sm:px-3"
+          className="h-11 min-w-0 flex-1 rounded-lg px-2 text-center focus:outline-none sm:max-w-[5rem] sm:flex-none sm:px-3"
+          style={{
+            fontFamily: 'var(--font-space-mono), monospace',
+            fontSize: '20px',
+            fontWeight: 700,
+            background: '#0c0a09',
+            border: '1px solid rgba(58,46,34,0.8)',
+            color: '#f5f5f4',
+            boxShadow: 'inset 0 2px 6px rgba(0,0,0,0.4)',
+          }}
         />
+
         <button
           type="button"
           onClick={handleIncrement}
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-zinc-600/80 bg-zinc-800/80 text-2xl font-bold text-zinc-100 transition hover:bg-zinc-700/90 active:scale-[0.97] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-400/50"
           aria-label="Increase by 5"
+          style={stepBtnStyle}
         >
           +
         </button>
+
         <button
           type="button"
           onClick={handleSet}
-          className="h-12 min-w-0 flex-1 rounded-xl bg-gradient-to-b from-amber-500 to-amber-600 font-semibold text-amber-950 shadow-lg shadow-amber-900/30 transition hover:from-amber-400 hover:to-amber-500 active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-300/60"
+          className="h-11 min-w-0 flex-1 rounded-lg font-bold transition-all active:scale-[0.98] focus-visible:outline-none"
+          style={{
+            fontFamily: 'var(--font-barlow), sans-serif',
+            letterSpacing: '0.14em',
+            fontSize: '13px',
+            textTransform: 'uppercase',
+            background: 'linear-gradient(180deg, #d97706 0%, #b45309 100%)',
+            color: '#1c1108',
+            boxShadow: '0 3px 14px -4px rgba(180,83,9,0.55)',
+          }}
         >
           Set
         </button>

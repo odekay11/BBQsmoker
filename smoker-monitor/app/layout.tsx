@@ -1,15 +1,19 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Barlow_Condensed, Space_Mono } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const barlowCondensed = Barlow_Condensed({
+  weight: ["400", "500", "600", "700", "800"],
   subsets: ["latin"],
+  variable: "--font-barlow",
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const spaceMono = Space_Mono({
+  weight: ["400", "700"],
   subsets: ["latin"],
+  variable: "--font-space-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -25,12 +29,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`h-full bg-zinc-950 ${geistSans.variable} ${geistMono.variable}`}
+      className={`h-full ${barlowCondensed.variable} ${spaceMono.variable}`}
     >
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
       </head>
-      <body className="min-h-full bg-zinc-950 font-sans text-zinc-100 antialiased">
+      <body className="min-h-full antialiased">
         {children}
       </body>
     </html>
