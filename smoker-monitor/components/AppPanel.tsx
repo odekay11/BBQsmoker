@@ -5,13 +5,15 @@ type AppPanelProps = {
   className?: string
 }
 
-/**
- * Shared surface for the UI prototype: depth, border, subtle blur.
- */
 export default function AppPanel({ children, className = '' }: AppPanelProps) {
   return (
     <div
-      className={`rounded-2xl border border-white/[0.07] bg-zinc-900/65 shadow-2xl shadow-black/55 ring-1 ring-inset ring-white/[0.04] backdrop-blur-md ${className}`}
+      className={`rounded-2xl ${className}`}
+      style={{
+        background: 'var(--panel)',
+        border: '1px solid var(--panel-border)',
+        boxShadow: '0 6px 32px rgba(0,0,0,0.65), inset 0 1px 0 rgba(255,255,255,0.025)',
+      }}
     >
       {children}
     </div>
