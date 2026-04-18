@@ -44,3 +44,8 @@ body {
   0% { transform: translateX(-100%); }
   100% { transform: translateX(100%); }
 }
+
+@keyframes lampPulse {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.3); }
+}
