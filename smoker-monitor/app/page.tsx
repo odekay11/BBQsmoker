@@ -577,6 +577,69 @@ function LegendDot({ color, label }: { color: string; label: string }) {
   )
 }
 
+// ─── Target badges ───────────────────────────────────────────────────────────
+function CrosshairIcon({ color, size = 16 }: { color: string; size?: number }) {
+  const c = size / 2
+  const r = size * 0.28
+  const gap = size * 0.12
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ display: 'block', flexShrink: 0 }}>
+      <circle cx={c} cy={c} r={r} fill="none" stroke={color} strokeWidth="1.2" />
+      {/* top */}
+      <line x1={c} y1={0} x2={c} y2={c - r - gap} stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+      {/* bottom */}
+      <line x1={c} y1={c + r + gap} x2={c} y2={size} stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+      {/* left */}
+      <line x1={0} y1={c} x2={c - r - gap} y2={c} stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+      {/* right */}
+      <line x1={c + r + gap} y1={c} x2={size} y2={c} stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+      <circle cx={c} cy={c} r={1.2} fill={color} />
+    </svg>
+  )
+}
+
+function TargetBadges({ chamberTarget, meatTarget }: { chamberTarget: number; meatTarget: number }) {
+  return (
+    <div style={{
+      marginTop: 14,
+      borderTop: `1px solid rgba(74,180,255,0.15)`,
+      paddingTop: 12,
+      display: 'flex',
+      gap: 8,
+    }}>
+      {[
+        { label: 'CHAMBER SET', value: chamberTarget, color: P.accent },
+        { label: 'MEAT SET',    value: meatTarget,    color: P.amber  },
+      ].map(({ label, value, color }) => (
+        <div key={label} style={{
+          flex: 1,
+          background: P.digitalBg,
+          border: `1px solid ${P.panelBorder}`,
+          borderRadius: 2,
+          padding: '7px 10px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 8,
+          boxShadow: 'inset 0 1px 4px rgba(0,0,0,0.7)',
+        }}>
+          <CrosshairIcon color={color} size={18} />
+          <div>
+            <div style={{
+              fontSize: 8, letterSpacing: 2.5,
+              color: P.inkMuted, fontWeight: 500, lineHeight: 1,
+            }}>{label}</div>
+            <div style={{
+              fontFamily: "'Barlow Condensed',sans-serif",
+              fontSize: 22, fontWeight: 500, letterSpacing: 2, lineHeight: 1.1,
+              color, textShadow: `0 0 8px ${color}aa`,
+            }}>{value}°F</div>
+          </div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
 function FooterPlate() {
   return (
     <div style={{
@@ -638,6 +701,7 @@ export default function Home() {
             size={180} zones={meatZones}
           />
         </div>
+        <TargetBadges chamberTarget={targetTemp} meatTarget={targetMeatTemp} />
       </Faceplate>
 
       <StatusStrip ssrStatus={ssrStatus} isRunning={isRunning} />

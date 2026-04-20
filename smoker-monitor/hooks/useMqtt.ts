@@ -65,6 +65,22 @@ export function useMqtt(): SmokerState {
 
     client.on('message', (topic, payload) => {
       const raw = payload.toString()
+
+      // Target temperatures are published as plain floats by the browser.
+      // Handle them here (outside the JSON block) so retained messages sync
+      // correctly on reconnect. Do NOT read these from the ESP32's combined
+      // payload — the browser is the authoritative source, and letting the
+      // ESP32 echo overwrite the local state causes the target to snap back
+      // to the old value after every PID publish.
+      if (topic === mqttConfig.topics.target) {
+        const t = parseFloat(raw)
+        if (!isNaN(t)) setTargetTempState(t)
+      }
+      if (topic === mqttConfig.topics.meatTarget) {
+        const t = parseFloat(raw)
+        if (!isNaN(t)) setTargetMeatTempState(t)
+      }
+
       try {
         const data = JSON.parse(raw)
 
@@ -74,20 +90,16 @@ export function useMqtt(): SmokerState {
         if (topic === mqttConfig.topics.meat && data.meat !== undefined) {
           setMeatTemp(data.meat)
         }
-        if (topic === mqttConfig.topics.target && data.target !== undefined) {
-          setTargetTempState(data.target)
-        }
         if (topic === mqttConfig.topics.ssr && data.ssr !== undefined) {
           setSsrStatus(data.ssr)
         }
 
-        // Handle combined payload
+        // Handle combined payload — note: target/meatTarget are intentionally
+        // excluded here; see comment above.
         if (data.chamber !== undefined && data.meat !== undefined) {
           setChamberTemp(data.chamber)
           setMeatTemp(data.meat)
-          if (data.target !== undefined) setTargetTempState(data.target)
           if (data.ssr !== undefined) setSsrStatus(data.ssr)
-          if (data.meatTarget !== undefined) setTargetMeatTempState(data.meatTarget)
 
           const nowMs = Date.now()
           if (isRunningRef.current && nowMs - lastHistoryTimeRef.current >= 5 * 60 * 1000) {
@@ -178,14 +190,14 @@ export function useMqtt(): SmokerState {
   const setTargetTemp = (temp: number) => {
     setTargetTempState(temp)
     if (clientRef.current?.connected) {
-      clientRef.current.publish(mqttConfig.topics.target, String(temp))
+      clientRef.current.publish(mqttConfig.topics.target, String(temp), { retain: true })
     }
   }
 
   const setTargetMeatTemp = (temp: number) => {
     setTargetMeatTempState(temp)
     if (clientRef.current?.connected) {
-      clientRef.current.publish(mqttConfig.topics.meatTarget, String(temp))
+      clientRef.current.publish(mqttConfig.topics.meatTarget, String(temp), { retain: true })
     }
   }
 
