@@ -17,21 +17,27 @@ static void mqttCallback(char* topic, byte* payload, unsigned int length) {
 
     if (strcmp(topic, TOPIC_TARGET) == 0) {
         float newTarget = atof(msg);
-        if (newTarget > 0) {
+        if (newTarget >= 100.0f && newTarget <= 400.0f) {
             targetTemp = newTarget;
             Serial.print("[MQTT] New target temperature: ");
             Serial.print(targetTemp);
             Serial.println(" °F");
+        } else {
+            Serial.print("[MQTT] Rejected out-of-range chamber target: ");
+            Serial.println(newTarget);
         }
     }
 
     if (strcmp(topic, TOPIC_MEAT_TARGET) == 0) {
         float newMeatTarget = atof(msg);
-        if (newMeatTarget > 0) {
+        if (newMeatTarget >= 100.0f && newMeatTarget <= 250.0f) {
             targetMeatTemp = newMeatTarget;
             Serial.print("[MQTT] New meat target temperature: ");
             Serial.print(targetMeatTemp);
             Serial.println(" °F");
+        } else {
+            Serial.print("[MQTT] Rejected out-of-range meat target: ");
+            Serial.println(newMeatTarget);
         }
     }
 

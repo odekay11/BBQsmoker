@@ -1,0 +1,22 @@
+# ── Credentials ──────────────────────────────────────────────────────────────
+# Copy config.h.template → config.h and fill in your values. Never commit config.h.
+firmware/config.h
+
+# ── PlatformIO build artifacts ────────────────────────────────────────────────
+firmware/.pio/build/
+
+# ── Claude Code local settings (machine-specific, not project config) ─────────
+.claude/
+smoker-monitor/.claude/
+
+# ── PID tuning scratch files ──────────────────────────────────────────────────
+pid_log_*.csv
+pid_test*.js
+TEST_RESULTS.md
+TESTdata*.txt
+
+# ── Miscellaneous local/tool files ────────────────────────────────────────────
+forgecad-context.md
+smoker-monitor/Trashcan smoker.zip
+smoker-monitor/trashcan-smoker-ref/
+pellet-feeder/
